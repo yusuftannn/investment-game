@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "trader-game",
-    "slug": "trader-game",
+    "name": "investment-game",
+    "slug": "investment-game",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
