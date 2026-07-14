@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
   Main: undefined;
+  MarketDetail: { symbol: string };
 };
 
 export type MainTabParamList = {
@@ -21,4 +22,11 @@ export type PortfolioPosition = {
   changePercent: number;
   marketValue: number;
   allocation: number;
+};
+
+export type Market = {
+  symbol: string;
+  name: string;
+  price: number;
+  change: number; // percent
 };

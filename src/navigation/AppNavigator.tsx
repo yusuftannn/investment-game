@@ -12,6 +12,7 @@ import { TradeScreen } from "../features/trade/TradeScreen";
 import { PortfolioScreen } from "../features/portfolio/PortfolioScreen";
 import { ProfileScreen } from "../features/profile/ProfileScreen";
 import { RootStackParamList, MainTabParamList } from "../types";
+import { MarketDetailScreen } from "../features/markets/MarketDetailScreen";
 import { authService } from "../services/auth";
 import { theme } from "../theme";
 
@@ -158,7 +159,10 @@ export function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainTabs} />
+          <>
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="MarketDetail" component={MarketDetailScreen} />
+          </>
         ) : (
           <>
             <Stack.Screen name="Splash" component={LoginScreen} />
