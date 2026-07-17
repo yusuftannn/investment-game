@@ -13,6 +13,8 @@ import { PortfolioScreen } from "../features/portfolio/PortfolioScreen";
 import { ProfileScreen } from "../features/profile/ProfileScreen";
 import { RootStackParamList, MainTabParamList } from "../types";
 import { MarketDetailScreen } from "../features/markets/MarketDetailScreen";
+import { DepositScreen } from "../features/deposit/DepositScreen";
+import { WatchlistScreen } from "../features/watchlist/WatchlistScreen";
 import { authService } from "../services/auth";
 import { theme } from "../theme";
 
@@ -162,6 +164,8 @@ export function AppNavigator() {
           <>
             <Stack.Screen name="Main" component={MainTabs} />
             <Stack.Screen name="MarketDetail" component={MarketDetailScreen} />
+            <Stack.Screen name="Deposit" component={DepositScreen} />
+            <Stack.Screen name="Watchlist" component={WatchlistScreen} />
           </>
         ) : (
           <>

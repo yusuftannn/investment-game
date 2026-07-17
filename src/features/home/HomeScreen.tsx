@@ -1,7 +1,10 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
+import { RootStackParamList } from '../../types';
 
 const quickActions = [
   { label: 'Deposit', icon: 'add-circle-outline', accent: theme.colors.primary },
@@ -15,7 +18,27 @@ const watchlist = [
   { symbol: 'TSLA', name: 'Tesla', price: '$247.10', change: '-1.3%', positive: false },
 ];
 
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 export function HomeScreen() {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  const handleQuickAction = (label: string) => {
+    switch (label) {
+      case 'Deposit':
+        navigation.navigate('Deposit');
+        break;
+      case 'Trade':
+        navigation.navigate('Main');
+        break;
+      case 'Watchlist':
+        navigation.navigate('Watchlist');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -57,7 +80,12 @@ export function HomeScreen() {
         </View>
         <View style={styles.actionsRow}>
           {quickActions.map((action) => (
-            <TouchableOpacity key={action.label} style={styles.actionCard} activeOpacity={0.85}>
+            <TouchableOpacity
+              key={action.label}
+              style={styles.actionCard}
+              activeOpacity={0.85}
+              onPress={() => handleQuickAction(action.label)}
+            >
               <View style={[styles.actionIcon, { backgroundColor: `${action.accent}20` }]}>
                 <Ionicons name={action.icon as never} size={18} color={action.accent} />
               </View>
@@ -66,10 +94,10 @@ export function HomeScreen() {
           ))}
         </View>
 
-        <View style={styles.sectionHeader}>
+        <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.8} onPress={() => navigation.navigate('Watchlist')}>
           <Text style={styles.sectionTitle}>Watchlist</Text>
           <Text style={styles.sectionLink}>See all</Text>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.listCard}>
           {watchlist.map((asset) => (

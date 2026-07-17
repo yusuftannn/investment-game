@@ -3,6 +3,8 @@ export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
   MarketDetail: { symbol: string };
+  Deposit: undefined;
+  Watchlist: undefined;
 };
 
 export type MainTabParamList = {
