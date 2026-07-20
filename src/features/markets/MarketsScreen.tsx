@@ -16,6 +16,7 @@ import { formatCurrency } from '../../utils/formatters';
 import { theme } from '../../theme';
 import { Market } from '../../types';
 import { useNavigation } from '@react-navigation/native';
+import { getWatchlistSymbols, toggleWatchlistSymbol } from '../../utils/watchlistStorage';
 
 export function MarketsScreen() {
   const navigation = useNavigation<any>();
@@ -24,6 +25,7 @@ export function MarketsScreen() {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [watchlistSymbols, setWatchlistSymbols] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -35,6 +37,7 @@ export function MarketsScreen() {
 
   useEffect(() => {
     load();
+    getWatchlistSymbols().then(setWatchlistSymbols);
   }, [load]);
 
   useEffect(() => {
@@ -53,7 +56,15 @@ export function MarketsScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     await load();
+    setWatchlistSymbols(await getWatchlistSymbols());
     setRefreshing(false);
+  };
+
+  const handleToggleWatchlist = async (symbol: string) => {
+    const added = await toggleWatchlistSymbol(symbol);
+    setWatchlistSymbols((current) =>
+      added ? [...current, symbol] : current.filter((item) => item !== symbol)
+    );
   };
 
   if (isLoading) {
@@ -113,6 +124,20 @@ export function MarketsScreen() {
                   {m.change >= 0 ? '+' : ''}{m.change.toFixed(2)}%
                 </Text>
               </View>
+
+              <TouchableOpacity
+                style={styles.watchlistButton}
+                onPress={(event) => {
+                  event.stopPropagation();
+                  handleToggleWatchlist(m.symbol);
+                }}
+              >
+                <Ionicons
+                  name={watchlistSymbols.includes(m.symbol) ? 'star' : 'star-outline'}
+                  size={18}
+                  color={watchlistSymbols.includes(m.symbol) ? theme.colors.primary : theme.colors.mutedText}
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
           ))}
         </View>
@@ -168,6 +193,10 @@ const styles = StyleSheet.create({
   symbol: { color: theme.colors.text, fontWeight: '700' },
   name: { color: theme.colors.mutedText, fontSize: theme.typography.caption },
   right: { alignItems: 'flex-end' },
+  watchlistButton: {
+    marginLeft: theme.spacing.sm,
+    padding: theme.spacing.xs,
+  },
   price: { color: theme.colors.text, fontWeight: '700' },
   change: { marginTop: theme.spacing.xs / 2, fontSize: theme.typography.caption, fontWeight: '700' },
   positive: { color: theme.colors.success },

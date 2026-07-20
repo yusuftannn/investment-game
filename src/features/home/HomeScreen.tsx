@@ -1,10 +1,12 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
-import { RootStackParamList } from '../../types';
+import { marketDataService } from '../../services/market-data';
+import { formatCurrency } from '../../utils/formatters';
+import { Market, RootStackParamList } from '../../types';
 
 const quickActions = [
   { label: 'Deposit', icon: 'add-circle-outline', accent: theme.colors.primary },
@@ -12,16 +14,27 @@ const quickActions = [
   { label: 'Watchlist', icon: 'star-outline', accent: '#34d399' },
 ];
 
-const watchlist = [
-  { symbol: 'AAPL', name: 'Apple', price: '$193.40', change: '+2.8%', positive: true },
-  { symbol: 'NVDA', name: 'NVIDIA', price: '$120.75', change: '+5.1%', positive: true },
-  { symbol: 'TSLA', name: 'Tesla', price: '$247.10', change: '-1.3%', positive: false },
-];
-
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [marketHighlights, setMarketHighlights] = useState<Market[]>([]);
+  const [isLoadingHighlights, setIsLoadingHighlights] = useState(true);
+
+  const loadMarketHighlights = useCallback(async () => {
+    try {
+      setIsLoadingHighlights(true);
+      const data = await marketDataService.getMarkets();
+      const sorted = [...data].sort((a, b) => b.change - a.change).slice(0, 3);
+      setMarketHighlights(sorted);
+    } finally {
+      setIsLoadingHighlights(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadMarketHighlights();
+  }, [loadMarketHighlights]);
 
   const handleQuickAction = (label: string) => {
     switch (label) {
@@ -94,31 +107,38 @@ export function HomeScreen() {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.8} onPress={() => navigation.navigate('Watchlist')}>
-          <Text style={styles.sectionTitle}>Watchlist</Text>
-          <Text style={styles.sectionLink}>See all</Text>
+        <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.8} onPress={() => navigation.navigate('Main')}>
+          <Text style={styles.sectionTitle}>Market pulse</Text>
+          <Text style={styles.sectionLink}>Open market</Text>
         </TouchableOpacity>
 
         <View style={styles.listCard}>
-          {watchlist.map((asset) => (
-            <View key={asset.symbol} style={styles.assetRow}>
-              <View style={styles.assetInfo}>
-                <View style={styles.assetIcon}>
-                  <Text style={styles.assetIconText}>{asset.symbol[0]}</Text>
-                </View>
-                <View>
-                  <Text style={styles.assetSymbol}>{asset.symbol}</Text>
-                  <Text style={styles.assetName}>{asset.name}</Text>
-                </View>
-              </View>
-              <View style={styles.assetOutcome}>
-                <Text style={styles.assetPrice}>{asset.price}</Text>
-                <Text style={[styles.assetChange, asset.positive ? styles.positive : styles.negative]}>
-                  {asset.change}
-                </Text>
-              </View>
+          {isLoadingHighlights ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="small" color={theme.colors.primary} />
+              <Text style={styles.loadingText}>Loading market movers...</Text>
             </View>
-          ))}
+          ) : (
+            marketHighlights.map((asset) => (
+              <View key={asset.symbol} style={styles.assetRow}>
+                <View style={styles.assetInfo}>
+                  <View style={styles.assetIcon}>
+                    <Text style={styles.assetIconText}>{asset.symbol[0]}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.assetSymbol}>{asset.symbol}</Text>
+                    <Text style={styles.assetName}>{asset.name}</Text>
+                  </View>
+                </View>
+                <View style={styles.assetOutcome}>
+                  <Text style={styles.assetPrice}>{formatCurrency(asset.price)}</Text>
+                  <Text style={[styles.assetChange, asset.change >= 0 ? styles.positive : styles.negative]}>
+                    {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(1)}%
+                  </Text>
+                </View>
+              </View>
+            ))
+          )}
         </View>
       </ScrollView>
     </View>
@@ -302,6 +322,16 @@ const styles = StyleSheet.create({
   },
   assetOutcome: {
     alignItems: 'flex-end',
+  },
+  loadingBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.md,
+  },
+  loadingText: {
+    marginLeft: theme.spacing.sm,
+    color: theme.colors.mutedText,
   },
   assetPrice: {
     color: theme.colors.text,

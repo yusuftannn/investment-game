@@ -1,23 +1,38 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../theme';
-import { RootStackParamList } from '../../types';
+import { Market, RootStackParamList } from '../../types';
+import { marketDataService } from '../../services/market-data';
+import { formatCurrency } from '../../utils/formatters';
+import { getWatchlistSymbols, toggleWatchlistSymbol } from '../../utils/watchlistStorage';
 
 type WatchlistScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const watchlist = [
-  { symbol: 'AAPL', name: 'Apple', price: '$193.40', change: '+2.8%', positive: true },
-  { symbol: 'NVDA', name: 'NVIDIA', price: '$120.75', change: '+5.1%', positive: true },
-  { symbol: 'TSLA', name: 'Tesla', price: '$247.10', change: '-1.3%', positive: false },
-  { symbol: 'MSFT', name: 'Microsoft', price: '$334.20', change: '+1.5%', positive: true },
-  { symbol: 'AMZN', name: 'Amazon', price: '$135.60', change: '+0.9%', positive: true },
-];
-
 export function WatchlistScreen() {
   const navigation = useNavigation<WatchlistScreenNavigationProp>();
+  const [watchlist, setWatchlist] = useState<Market[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadWatchlist = useCallback(async () => {
+    setIsLoading(true);
+    const symbols = await getWatchlistSymbols();
+    const data = await marketDataService.getMarkets();
+    const filtered = data.filter((item) => symbols.includes(item.symbol));
+    setWatchlist(filtered);
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => {
+    loadWatchlist();
+  }, [loadWatchlist]);
+
+  const handleToggleWatchlist = async (symbol: string) => {
+    await toggleWatchlistSymbol(symbol);
+    await loadWatchlist();
+  };
 
   return (
     <View style={styles.container}>
@@ -33,26 +48,43 @@ export function WatchlistScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.listCard}>
-          {watchlist.map((asset) => (
-            <View key={asset.symbol} style={styles.assetRow}>
-              <View style={styles.assetInfo}>
-                <View style={styles.assetIcon}>
-                  <Text style={styles.assetIconText}>{asset.symbol[0]}</Text>
-                </View>
-                <View>
-                  <Text style={styles.assetSymbol}>{asset.symbol}</Text>
-                  <Text style={styles.assetName}>{asset.name}</Text>
-                </View>
-              </View>
-
-              <View style={styles.assetOutcome}>
-                <Text style={styles.assetPrice}>{asset.price}</Text>
-                <Text style={[styles.assetChange, asset.positive ? styles.positive : styles.negative]}>
-                  {asset.change}
-                </Text>
-              </View>
+          {isLoading ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="small" color={theme.colors.primary} />
+              <Text style={styles.loadingText}>Loading watchlist...</Text>
             </View>
-          ))}
+          ) : watchlist.length === 0 ? (
+            <View style={styles.emptyBox}>
+              <Ionicons name="star-outline" size={24} color={theme.colors.mutedText} />
+              <Text style={styles.emptyText}>No favorites yet.</Text>
+              <Text style={styles.emptySubtext}>Add assets from the markets screen.</Text>
+            </View>
+          ) : (
+            watchlist.map((asset) => (
+              <View key={asset.symbol} style={styles.assetRow}>
+                <View style={styles.assetInfo}>
+                  <View style={styles.assetIcon}>
+                    <Text style={styles.assetIconText}>{asset.symbol[0]}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.assetSymbol}>{asset.symbol}</Text>
+                    <Text style={styles.assetName}>{asset.name}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.assetOutcome}>
+                  <Text style={styles.assetPrice}>{formatCurrency(asset.price)}</Text>
+                  <Text style={[styles.assetChange, asset.change >= 0 ? styles.positive : styles.negative]}>
+                    {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(1)}%
+                  </Text>
+                </View>
+
+                <TouchableOpacity style={styles.actionButton} onPress={() => handleToggleWatchlist(asset.symbol)}>
+                  <Ionicons name="trash-outline" size={18} color={theme.colors.danger} />
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
         </View>
       </ScrollView>
     </View>
@@ -145,6 +177,30 @@ const styles = StyleSheet.create({
   assetOutcome: {
     alignItems: 'flex-end',
   },
+  loadingBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.md,
+  },
+  loadingText: {
+    marginLeft: theme.spacing.sm,
+    color: theme.colors.mutedText,
+  },
+  emptyBox: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xl,
+  },
+  emptyText: {
+    marginTop: theme.spacing.sm,
+    color: theme.colors.text,
+    fontWeight: '700',
+  },
+  emptySubtext: {
+    marginTop: theme.spacing.xs,
+    color: theme.colors.mutedText,
+    textAlign: 'center',
+  },
   assetPrice: {
     color: theme.colors.text,
     fontWeight: '600',
@@ -152,6 +208,10 @@ const styles = StyleSheet.create({
   assetChange: {
     fontSize: theme.typography.caption,
     fontWeight: '600',
+  },
+  actionButton: {
+    marginLeft: theme.spacing.sm,
+    padding: theme.spacing.xs,
   },
   positive: {
     color: theme.colors.success,
