@@ -1,7 +1,7 @@
 export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
-  Main: undefined;
+  Main: { screen?: keyof MainTabParamList } | undefined;
   MarketDetail: { symbol: string };
   Deposit: undefined;
   Watchlist: undefined;
