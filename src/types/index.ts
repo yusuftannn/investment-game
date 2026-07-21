@@ -31,4 +31,7 @@ export type Market = {
   name: string;
   price: number;
   change: number; // percent
+  market: MarketCategory;
 };
+
+export type MarketCategory = 'us' | 'bist' | 'funds' | 'crypto';

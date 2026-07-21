@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -8,21 +8,26 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ScreenContainer } from '../../components/ui/ScreenContainer';
-import { marketDataService } from '../../services/market-data';
-import { formatCurrency } from '../../utils/formatters';
-import { theme } from '../../theme';
-import { Market } from '../../types';
-import { useNavigation } from '@react-navigation/native';
-import { getWatchlistSymbols, toggleWatchlistSymbol } from '../../utils/watchlistStorage';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ScreenContainer } from "../../components/ui/ScreenContainer";
+import { marketDataService } from "../../services/market-data";
+import { formatCurrency } from "../../utils/formatters";
+import { theme } from "../../theme";
+import { Market, MarketCategory } from "../../types";
+import { useNavigation } from "@react-navigation/native";
+import {
+  getWatchlistSymbols,
+  toggleWatchlistSymbol,
+} from "../../utils/watchlistStorage";
 
 export function MarketsScreen() {
   const navigation = useNavigation<any>();
+  const [selectedCategory, setSelectedCategory] =
+    useState<MarketCategory>("us");
   const [markets, setMarkets] = useState<Market[]>([]);
   const [filtered, setFiltered] = useState<Market[]>([]);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [watchlistSymbols, setWatchlistSymbols] = useState<string[]>([]);
@@ -42,16 +47,19 @@ export function MarketsScreen() {
 
   useEffect(() => {
     const q = query.trim().toLowerCase();
-    if (!q) {
-      setFiltered(markets);
-      return;
-    }
-    setFiltered(
-      markets.filter(
-        (m) => m.symbol.toLowerCase().includes(q) || m.name.toLowerCase().includes(q)
-      )
+    const categoryMarkets = markets.filter(
+      (market) => market.market === selectedCategory,
     );
-  }, [query, markets]);
+    setFiltered(
+      q
+        ? categoryMarkets.filter(
+            (m) =>
+              m.symbol.toLowerCase().includes(q) ||
+              m.name.toLowerCase().includes(q),
+          )
+        : categoryMarkets,
+    );
+  }, [query, markets, selectedCategory]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -63,7 +71,7 @@ export function MarketsScreen() {
   const handleToggleWatchlist = async (symbol: string) => {
     const added = await toggleWatchlistSymbol(symbol);
     setWatchlistSymbols((current) =>
-      added ? [...current, symbol] : current.filter((item) => item !== symbol)
+      added ? [...current, symbol] : current.filter((item) => item !== symbol),
     );
   };
 
@@ -79,7 +87,9 @@ export function MarketsScreen() {
     <ScreenContainer>
       <ScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.searchRow}>
@@ -93,12 +103,54 @@ export function MarketsScreen() {
               style={styles.searchInput}
             />
             {query.length > 0 && (
-              <TouchableOpacity onPress={() => setQuery('')}>
-                <Ionicons name="close" size={18} color={theme.colors.mutedText} />
+              <TouchableOpacity onPress={() => setQuery("")}>
+                <Ionicons
+                  name="close"
+                  size={18}
+                  color={theme.colors.mutedText}
+                />
               </TouchableOpacity>
             )}
           </View>
         </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryList}
+          style={styles.categoryScroll}
+        >
+          {[
+            { key: "us", label: "ABD" },
+            { key: "bist", label: "BIST" },
+            { key: "funds", label: "Fonlar" },
+            { key: "crypto", label: "Kripto" },
+          ].map((category) => {
+            const isSelected = selectedCategory === category.key;
+            return (
+              <TouchableOpacity
+                key={category.key}
+                style={[
+                  styles.categoryButton,
+                  isSelected && styles.categoryButtonSelected,
+                ]}
+                onPress={() =>
+                  setSelectedCategory(category.key as MarketCategory)
+                }
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    isSelected && styles.categoryTextSelected,
+                  ]}
+                >
+                  {category.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
 
         <View style={styles.listCard}>
           {filtered.map((m) => (
@@ -106,7 +158,9 @@ export function MarketsScreen() {
               key={m.symbol}
               style={styles.row}
               activeOpacity={0.85}
-              onPress={() => navigation.navigate('MarketDetail', { symbol: m.symbol })}
+              onPress={() =>
+                navigation.navigate("MarketDetail", { symbol: m.symbol })
+              }
             >
               <View style={styles.left}>
                 <View style={styles.avatar}>
@@ -118,26 +172,42 @@ export function MarketsScreen() {
                 </View>
               </View>
 
-              <View style={styles.right}>
-                <Text style={styles.price}>{formatCurrency(m.price)}</Text>
-                <Text style={[styles.change, m.change >= 0 ? styles.positive : styles.negative]}>
-                  {m.change >= 0 ? '+' : ''}{m.change.toFixed(2)}%
-                </Text>
-              </View>
+              <View style={styles.rightSection}>
+                <View style={styles.right}>
+                  <Text style={styles.price}>{formatCurrency(m.price)}</Text>
+                  <Text
+                    style={[
+                      styles.change,
+                      m.change >= 0 ? styles.positive : styles.negative,
+                    ]}
+                  >
+                    {m.change >= 0 ? "+" : ""}
+                    {m.change.toFixed(2)}%
+                  </Text>
+                </View>
 
-              <TouchableOpacity
-                style={styles.watchlistButton}
-                onPress={(event) => {
-                  event.stopPropagation();
-                  handleToggleWatchlist(m.symbol);
-                }}
-              >
-                <Ionicons
-                  name={watchlistSymbols.includes(m.symbol) ? 'star' : 'star-outline'}
-                  size={18}
-                  color={watchlistSymbols.includes(m.symbol) ? theme.colors.primary : theme.colors.mutedText}
-                />
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.watchlistButton}
+                  onPress={(event) => {
+                    event.stopPropagation();
+                    handleToggleWatchlist(m.symbol);
+                  }}
+                >
+                  <Ionicons
+                    name={
+                      watchlistSymbols.includes(m.symbol)
+                        ? "star"
+                        : "star-outline"
+                    }
+                    size={18}
+                    color={
+                      watchlistSymbols.includes(m.symbol)
+                        ? theme.colors.primary
+                        : theme.colors.mutedText
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -147,12 +217,28 @@ export function MarketsScreen() {
 }
 
 const styles = StyleSheet.create({
-  centered: { justifyContent: 'center', alignItems: 'center' },
+  centered: { justifyContent: "center", alignItems: "center" },
   content: { paddingBottom: theme.spacing.xxl },
   searchRow: { marginBottom: theme.spacing.lg },
+  categoryScroll: { marginBottom: theme.spacing.lg },
+  categoryList: { gap: theme.spacing.sm },
+  categoryButton: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  categoryButtonSelected: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  categoryText: { color: theme.colors.mutedText, fontWeight: "700" },
+  categoryTextSelected: { color: theme.colors.background },
   searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: theme.colors.surface,
     padding: theme.spacing.sm,
     borderRadius: theme.radius.md,
@@ -172,33 +258,45 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: theme.spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
-  left: { flexDirection: 'row', alignItems: 'center' },
+  left: { flexDirection: "row", alignItems: "center" },
   avatar: {
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: `${theme.colors.primary}20`,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: theme.spacing.md,
   },
-  avatarText: { color: theme.colors.primary, fontWeight: '700' },
-  symbol: { color: theme.colors.text, fontWeight: '700' },
+  avatarText: { color: theme.colors.primary, fontWeight: "700" },
+  symbol: { color: theme.colors.text, fontWeight: "700" },
   name: { color: theme.colors.mutedText, fontSize: theme.typography.caption },
-  right: { alignItems: 'flex-end' },
+  right: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+  rightSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: "auto",
+  },
   watchlistButton: {
-    marginLeft: theme.spacing.sm,
+    marginLeft: theme.spacing.md,
     padding: theme.spacing.xs,
   },
-  price: { color: theme.colors.text, fontWeight: '700' },
-  change: { marginTop: theme.spacing.xs / 2, fontSize: theme.typography.caption, fontWeight: '700' },
+  price: { color: theme.colors.text, fontWeight: "700" },
+  change: {
+    marginTop: theme.spacing.xs / 2,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
+  },
   positive: { color: theme.colors.success },
   negative: { color: theme.colors.danger },
 });
