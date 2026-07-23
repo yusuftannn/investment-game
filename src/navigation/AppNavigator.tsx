@@ -16,6 +16,7 @@ import { RootStackParamList, MainTabParamList } from "../types";
 import { MarketDetailScreen } from "../features/markets/MarketDetailScreen";
 import { DepositScreen } from "../features/deposit/DepositScreen";
 import { WatchlistScreen } from "../features/watchlist/WatchlistScreen";
+import { NewsScreen } from "../features/news/NewsScreen";
 import { authService } from "../services/auth";
 import { theme } from "../theme";
 
@@ -168,6 +169,7 @@ export function AppNavigator() {
             <Stack.Screen name="Deposit" component={DepositScreen} />
             <Stack.Screen name="Watchlist" component={WatchlistScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="News" component={NewsScreen} />
           </>
         ) : (
           <>

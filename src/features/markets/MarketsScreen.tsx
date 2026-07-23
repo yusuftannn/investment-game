@@ -20,6 +20,7 @@ import {
   getWatchlistSymbols,
   toggleWatchlistSymbol,
 } from "../../utils/watchlistStorage";
+import { newsCategoryLabels, newsItems } from "../news/newsData";
 
 export function MarketsScreen() {
   const navigation = useNavigation<any>();
@@ -211,6 +212,33 @@ export function MarketsScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        <TouchableOpacity style={styles.newsHeader} activeOpacity={0.8} onPress={() => navigation.navigate("News")}>
+          <View>
+            <Text style={styles.newsEyebrow}>MARKET INTELLIGENCE</Text>
+            <Text style={styles.newsSectionTitle}>Latest news</Text>
+          </View>
+          <View style={styles.newsLinkRow}>
+            <Text style={styles.newsLink}>See all</Text>
+            <Ionicons name="chevron-forward" size={16} color={theme.colors.primary} />
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.newsList}>
+          {newsItems.slice(0, 3).map((item) => (
+            <View key={item.id} style={styles.newsRow}>
+              <View style={styles.newsAccent} />
+              <View style={styles.newsCopy}>
+                <View style={styles.newsMeta}>
+                  <Text style={styles.newsCategory}>{newsCategoryLabels[item.category]}</Text>
+                  <Text style={styles.newsTime}>{item.publishedAt}</Text>
+                </View>
+                <Text style={styles.newsTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={styles.newsSource}>{item.source}{item.symbol ? ` · ${item.symbol}` : ""}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
       </ScrollView>
     </ScreenContainer>
   );
@@ -299,4 +327,18 @@ const styles = StyleSheet.create({
   },
   positive: { color: theme.colors.success },
   negative: { color: theme.colors.danger },
+  newsHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: theme.spacing.xl, marginBottom: theme.spacing.md },
+  newsEyebrow: { color: theme.colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1 },
+  newsSectionTitle: { color: theme.colors.text, fontSize: theme.typography.subtitle, fontWeight: "800", marginTop: theme.spacing.xs },
+  newsLinkRow: { flexDirection: "row", alignItems: "center" },
+  newsLink: { color: theme.colors.primary, fontWeight: "700", marginRight: 2 },
+  newsList: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, borderWidth: 1, borderColor: theme.colors.border, overflow: "hidden" },
+  newsRow: { flexDirection: "row", padding: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+  newsAccent: { width: 3, borderRadius: 2, backgroundColor: theme.colors.primary, marginRight: theme.spacing.md },
+  newsCopy: { flex: 1 },
+  newsMeta: { flexDirection: "row", justifyContent: "space-between", marginBottom: theme.spacing.xs },
+  newsCategory: { color: theme.colors.primary, fontSize: 10, fontWeight: "800", textTransform: "uppercase" },
+  newsTime: { color: theme.colors.mutedText, fontSize: 11 },
+  newsTitle: { color: theme.colors.text, fontWeight: "700", lineHeight: 20 },
+  newsSource: { color: theme.colors.mutedText, fontSize: 11, marginTop: theme.spacing.xs },
 });

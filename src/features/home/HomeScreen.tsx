@@ -12,6 +12,7 @@ const quickActions = [
   { label: 'Deposit', icon: 'add-circle-outline', accent: theme.colors.primary },
   { label: 'Trade', icon: 'swap-horizontal-outline', accent: '#60a5fa' },
   { label: 'Watchlist', icon: 'star-outline', accent: '#34d399' },
+  { label: 'News', icon: 'newspaper-outline', accent: '#fb923c' },
 ];
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -46,6 +47,9 @@ export function HomeScreen() {
         break;
       case 'Watchlist':
         navigation.navigate('Watchlist');
+        break;
+      case 'News':
+        navigation.navigate('News');
         break;
       default:
         break;
@@ -259,10 +263,11 @@ const styles = StyleSheet.create({
   },
   actionsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: theme.spacing.md,
   },
   actionCard: {
-    flex: 1,
+    width: '47%',
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
     paddingVertical: theme.spacing.md,

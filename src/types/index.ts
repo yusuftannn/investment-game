@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Deposit: undefined;
   Watchlist: undefined;
   Settings: undefined;
+  News: undefined;
 };
 
 export type MainTabParamList = {
