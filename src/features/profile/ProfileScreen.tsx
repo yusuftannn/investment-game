@@ -9,10 +9,12 @@ import {
 } from "react-native";
 import { theme } from "../../theme";
 import { useAppStore } from "../../store";
+import { useNavigation } from "@react-navigation/native";
 
 export function ProfileScreen() {
   const setAuthenticated = useAppStore((state) => state.setAuthenticated);
   const setAuthStatus = useAppStore((state) => state.setAuthStatus);
+  const navigation = useNavigation<any>();
 
   const handleLogout = () => {
     setAuthenticated(false);
@@ -65,7 +67,10 @@ export function ProfileScreen() {
         <Pressable style={styles.primaryButton} onPress={() => {}}>
           <Text style={styles.primaryButtonText}>Profili Düzenle</Text>
         </Pressable>
-        <Pressable style={styles.ghostButton} onPress={() => {}}>
+        <Pressable
+          style={styles.ghostButton}
+          onPress={() => navigation.navigate("Settings")}
+        >
           <Text style={styles.ghostButtonText}>Ayarlar</Text>
         </Pressable>
         <Pressable style={styles.ghostButton} onPress={handleLogout}>

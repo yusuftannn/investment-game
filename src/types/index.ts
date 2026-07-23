@@ -5,6 +5,7 @@ export type RootStackParamList = {
   MarketDetail: { symbol: string };
   Deposit: undefined;
   Watchlist: undefined;
+  Settings: undefined;
 };
 
 export type MainTabParamList = {
@@ -34,4 +35,4 @@ export type Market = {
   market: MarketCategory;
 };
 
-export type MarketCategory = 'us' | 'bist' | 'funds' | 'crypto';
+export type MarketCategory = "us" | "bist" | "funds" | "crypto";

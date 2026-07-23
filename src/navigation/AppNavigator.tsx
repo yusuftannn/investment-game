@@ -11,6 +11,7 @@ import { MarketsScreen } from "../features/markets/MarketsScreen";
 import { TradeScreen } from "../features/trade/TradeScreen";
 import { PortfolioScreen } from "../features/portfolio/PortfolioScreen";
 import { ProfileScreen } from "../features/profile/ProfileScreen";
+import { SettingsScreen } from "../features/settings/SettingsScreen";
 import { RootStackParamList, MainTabParamList } from "../types";
 import { MarketDetailScreen } from "../features/markets/MarketDetailScreen";
 import { DepositScreen } from "../features/deposit/DepositScreen";
@@ -166,6 +167,7 @@ export function AppNavigator() {
             <Stack.Screen name="MarketDetail" component={MarketDetailScreen} />
             <Stack.Screen name="Deposit" component={DepositScreen} />
             <Stack.Screen name="Watchlist" component={WatchlistScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
           </>
         ) : (
           <>
