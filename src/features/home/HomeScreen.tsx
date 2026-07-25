@@ -1,18 +1,30 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../theme';
-import { marketDataService } from '../../services/market-data';
-import { formatCurrency } from '../../utils/formatters';
-import { Market, RootStackParamList } from '../../types';
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "../../theme";
+import { marketDataService } from "../../services/market-data";
+import { formatCurrency } from "../../utils/formatters";
+import { Market, RootStackParamList } from "../../types";
 
 const quickActions = [
-  { label: 'Deposit', icon: 'add-circle-outline', accent: theme.colors.primary },
-  { label: 'Trade', icon: 'swap-horizontal-outline', accent: '#60a5fa' },
-  { label: 'Watchlist', icon: 'star-outline', accent: '#34d399' },
-  { label: 'News', icon: 'newspaper-outline', accent: '#fb923c' },
+  {
+    label: "Deposit",
+    icon: "add-circle-outline",
+    accent: theme.colors.primary,
+  },
+  { label: "Trade", icon: "swap-horizontal-outline", accent: "#60a5fa" },
+  { label: "Watchlist", icon: "star-outline", accent: "#34d399" },
+  { label: "News", icon: "newspaper-outline", accent: "#fb923c" },
 ];
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -20,6 +32,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const [marketHighlights, setMarketHighlights] = useState<Market[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [isLoadingHighlights, setIsLoadingHighlights] = useState(true);
 
   const loadMarketHighlights = useCallback(async () => {
@@ -37,19 +50,25 @@ export function HomeScreen() {
     loadMarketHighlights();
   }, [loadMarketHighlights]);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadMarketHighlights();
+    setRefreshing(false);
+  };
+
   const handleQuickAction = (label: string) => {
     switch (label) {
-      case 'Deposit':
-        navigation.navigate('Deposit');
+      case "Deposit":
+        navigation.navigate("Deposit");
         break;
-      case 'Trade':
-        navigation.navigate('Main');
+      case "Trade":
+        navigation.navigate("Main");
         break;
-      case 'Watchlist':
-        navigation.navigate('Watchlist');
+      case "Watchlist":
+        navigation.navigate("Watchlist");
         break;
-      case 'News':
-        navigation.navigate('News');
+      case "News":
+        navigation.navigate("News");
         break;
       default:
         break;
@@ -58,7 +77,13 @@ export function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.eyebrow}>Good morning</Text>
@@ -103,15 +128,28 @@ export function HomeScreen() {
               activeOpacity={0.85}
               onPress={() => handleQuickAction(action.label)}
             >
-              <View style={[styles.actionIcon, { backgroundColor: `${action.accent}20` }]}>
-                <Ionicons name={action.icon as never} size={18} color={action.accent} />
+              <View
+                style={[
+                  styles.actionIcon,
+                  { backgroundColor: `${action.accent}20` },
+                ]}
+              >
+                <Ionicons
+                  name={action.icon as never}
+                  size={18}
+                  color={action.accent}
+                />
               </View>
               <Text style={styles.actionLabel}>{action.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.8} onPress={() => navigation.navigate('Main')}>
+        <TouchableOpacity
+          style={styles.sectionHeader}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("Main")}
+        >
           <Text style={styles.sectionTitle}>Market pulse</Text>
           <Text style={styles.sectionLink}>Open market</Text>
         </TouchableOpacity>
@@ -135,9 +173,17 @@ export function HomeScreen() {
                   </View>
                 </View>
                 <View style={styles.assetOutcome}>
-                  <Text style={styles.assetPrice}>{formatCurrency(asset.price)}</Text>
-                  <Text style={[styles.assetChange, asset.change >= 0 ? styles.positive : styles.negative]}>
-                    {asset.change >= 0 ? '+' : ''}{asset.change.toFixed(1)}%
+                  <Text style={styles.assetPrice}>
+                    {formatCurrency(asset.price)}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.assetChange,
+                      asset.change >= 0 ? styles.positive : styles.negative,
+                    ]}
+                  >
+                    {asset.change >= 0 ? "+" : ""}
+                    {asset.change.toFixed(1)}%
                   </Text>
                 </View>
               </View>
@@ -160,22 +206,22 @@ const styles = StyleSheet.create({
     paddingBottom: theme.spacing.xxl,
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: theme.spacing.lg,
   },
   eyebrow: {
     fontSize: theme.typography.caption,
     color: theme.colors.primary,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    textTransform: "uppercase",
     letterSpacing: 1.2,
   },
   title: {
     marginTop: theme.spacing.xs,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: theme.colors.text,
     maxWidth: 260,
   },
@@ -184,12 +230,12 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   avatarText: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     color: theme.colors.secondary,
   },
   heroCard: {
@@ -200,9 +246,9 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   heroTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   heroLabel: {
     fontSize: theme.typography.caption,
@@ -211,7 +257,7 @@ const styles = StyleSheet.create({
   },
   balance: {
     fontSize: 30,
-    fontWeight: '700',
+    fontWeight: "700",
     color: theme.colors.text,
   },
   badge: {
@@ -222,10 +268,10 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: theme.colors.primary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   heroStatsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: theme.spacing.lg,
     gap: theme.spacing.md,
   },
@@ -242,36 +288,36 @@ const styles = StyleSheet.create({
   },
   heroStatValue: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: theme.colors.text,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: theme.spacing.xl,
     marginBottom: theme.spacing.md,
   },
   sectionTitle: {
     fontSize: theme.typography.subtitle,
-    fontWeight: '700',
+    fontWeight: "700",
     color: theme.colors.text,
   },
   sectionLink: {
     color: theme.colors.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   actionsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: theme.spacing.md,
   },
   actionCard: {
-    width: '47%',
+    width: "47%",
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.md,
     paddingVertical: theme.spacing.md,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
@@ -279,13 +325,13 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: theme.spacing.sm,
   },
   actionLabel: {
     color: theme.colors.text,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   listCard: {
     backgroundColor: theme.colors.surface,
@@ -295,43 +341,43 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
   },
   assetRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: theme.spacing.sm,
   },
   assetInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   assetIcon: {
     width: 38,
     height: 38,
     borderRadius: 19,
     backgroundColor: `${theme.colors.primary}20`,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: theme.spacing.md,
   },
   assetIconText: {
     color: theme.colors.primary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   assetSymbol: {
     color: theme.colors.text,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   assetName: {
     color: theme.colors.mutedText,
     fontSize: theme.typography.caption,
   },
   assetOutcome: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   loadingBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: theme.spacing.md,
   },
   loadingText: {
@@ -340,11 +386,11 @@ const styles = StyleSheet.create({
   },
   assetPrice: {
     color: theme.colors.text,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   assetChange: {
     fontSize: theme.typography.caption,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   positive: {
     color: theme.colors.success,

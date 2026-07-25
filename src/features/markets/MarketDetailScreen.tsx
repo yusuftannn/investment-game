@@ -18,9 +18,9 @@ import { marketDataService } from "../../services/market-data";
 
 type MarketDetailRouteProp = RouteProp<RootStackParamList, "MarketDetail">;
 type NavProp = NativeStackNavigationProp<RootStackParamList, "MarketDetail">;
-type Range = "1G" | "1H" | "4H" | "1A" | "1Y";
+type Range = "1D" | "1W" | "1M" | "1Y" | "5Y";
 
-const ranges: Range[] = ["1G", "1H", "4H", "1A", "1Y"];
+const ranges: Range[] = ["1D", "1W", "1M", "1Y", "5Y"];
 
 function generateMockHistory(price: number, seed: number, points = 40) {
   return Array.from({ length: points }, (_, index) => {
@@ -44,10 +44,10 @@ function formatPrice(price: number, currency: string) {
 
 function getMarketLabel(market: Market["market"]) {
   return {
-    us: "ABD piyasaları",
-    bist: "Borsa İstanbul",
-    funds: "Yatırım fonu",
-    crypto: "Kripto varlık",
+    us: "US Markets",
+    bist: "Borsa Istanbul",
+    funds: "Mutual Funds",
+    crypto: "Cryptocurrency",
   }[market];
 }
 
@@ -57,7 +57,7 @@ export function MarketDetailScreen() {
   const { width } = useWindowDimensions();
   const { symbol } = route.params;
   const [asset, setAsset] = useState<Market | null>(null);
-  const [range, setRange] = useState<Range>("1G");
+  const [range, setRange] = useState<Range>("1D");
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export function MarketDetailScreen() {
           <View style={styles.identityText}>
             <Text style={styles.name}>{asset.name}</Text>
             <Text style={styles.marketStatus}>
-              <Text style={styles.statusDot}>●</Text> Piyasa açık
+              <Text style={styles.statusDot}>●</Text> Market Open
             </Text>
           </View>
         </View>
@@ -147,7 +147,7 @@ export function MarketDetailScreen() {
         <View style={styles.priceRow}>
           <View>
             <Text style={styles.price}>{formatPrice(latest, currency)}</Text>
-            <Text style={styles.updated}>Son güncelleme · şimdi</Text>
+            <Text style={styles.updated}>Last updated · Just now</Text>
           </View>
           <View
             style={[
@@ -178,7 +178,7 @@ export function MarketDetailScreen() {
 
         <View style={styles.chartCard}>
           <View style={styles.chartHeader}>
-            <Text style={styles.sectionTitle}>Fiyat hareketi</Text>
+            <Text style={styles.sectionTitle}>Price Movement</Text>
             <Text style={styles.chartCurrency}>{currency}</Text>
           </View>
           <View style={styles.chartWrap}>
@@ -232,30 +232,30 @@ export function MarketDetailScreen() {
 
         <View style={styles.statsCard}>
           <View style={styles.statsHeader}>
-            <Text style={styles.sectionTitle}>Piyasa özeti</Text>
-            <Text style={styles.liveText}>GÜNCEL</Text>
+            <Text style={styles.sectionTitle}>Market Summary</Text>
+            <Text style={styles.liveText}>LIVE</Text>
           </View>
           <View style={styles.statsGrid}>
             <View style={styles.stat}>
-              <Text style={styles.statLabel}>Gün içi en yüksek</Text>
+              <Text style={styles.statLabel}>Day High</Text>
               <Text style={styles.statValue}>
                 {formatPrice(Math.max(...history), currency)}
               </Text>
             </View>
             <View style={styles.stat}>
-              <Text style={styles.statLabel}>Gün içi en düşük</Text>
+              <Text style={styles.statLabel}>Day Low</Text>
               <Text style={styles.statValue}>
                 {formatPrice(Math.min(...history), currency)}
               </Text>
             </View>
             <View style={styles.stat}>
-              <Text style={styles.statLabel}>Önceki kapanış</Text>
+              <Text style={styles.statLabel}>Previous Close</Text>
               <Text style={styles.statValue}>
                 {formatPrice(first, currency)}
               </Text>
             </View>
             <View style={styles.stat}>
-              <Text style={styles.statLabel}>Değişim</Text>
+              <Text style={styles.statLabel}>Change</Text>
               <Text
                 style={[
                   styles.statValue,
@@ -274,7 +274,7 @@ export function MarketDetailScreen() {
           style={styles.tradeButton}
           onPress={() => navigation.navigate("Main", { screen: "Trade" })}
         >
-          <Text style={styles.tradeButtonText}>İşlem yap</Text>
+          <Text style={styles.tradeButtonText}>Trade</Text>
           <Ionicons
             name="arrow-forward"
             size={18}
