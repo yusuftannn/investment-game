@@ -20,11 +20,13 @@ const settings = [
         icon: "person-outline",
         title: "Profile",
         subtitle: "Manage your personal information",
+        route: "Profile",
       },
       {
         icon: "star-outline",
         title: "Watchlist",
         subtitle: "View your favorite markets",
+        route: "Watchlist",
       },
     ],
   },
@@ -35,16 +37,19 @@ const settings = [
         icon: "notifications-outline",
         title: "Notifications",
         subtitle: "Price alerts and news",
+        route: "Notifications",
       },
       {
         icon: "moon-outline",
         title: "Appearance",
         subtitle: "Dark mode settings",
+        route: "Appearance",
       },
       {
         icon: "language-outline",
         title: "Language",
         subtitle: "English",
+        route: "Language",
       },
     ],
   },
@@ -55,6 +60,7 @@ const settings = [
         icon: "shield-checkmark-outline",
         title: "Security",
         subtitle: "Password & authentication",
+        route: "Security",
       },
     ],
   },
@@ -65,21 +71,25 @@ const settings = [
         icon: "help-circle-outline",
         title: "Help Center",
         subtitle: "FAQs and documentation",
+        route: "HelpCenter",
       },
       {
         icon: "document-text-outline",
         title: "Privacy Policy",
         subtitle: "Read our privacy policy",
+        route: "PrivacyPolicy",
       },
       {
         icon: "reader-outline",
         title: "Terms of Service",
         subtitle: "Application terms",
+        route: "TermsOfService",
       },
       {
         icon: "information-circle-outline",
         title: "About",
         subtitle: "Version 1.0.0",
+        route: "About",
       },
     ],
   },
@@ -113,7 +123,7 @@ export function SettingsScreen() {
           </View>
 
           <Text style={styles.name}>Demo User</Text>
-          <Text style={styles.email}>demo@nexardynamics.com</Text>
+          <Text style={styles.email}>yusuftan41@hotmail.com</Text>
         </View>
 
         {settings.map((section) => (
@@ -129,6 +139,13 @@ export function SettingsScreen() {
                     styles.row,
                     index !== section.items.length - 1 && styles.rowBorder,
                   ]}
+                  onPress={() => {
+                    if (item.route === "Profile") {
+                      navigation.navigate("Main", { screen: "Profile" });
+                      return;
+                    }
+                    navigation.navigate(item.route as any);
+                  }}
                 >
                   <View style={styles.left}>
                     <View style={styles.iconBox}>
@@ -166,7 +183,7 @@ export function SettingsScreen() {
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 
-        <Text style={styles.footer}>Nexar Dynamics Mobile</Text>
+        <Text style={styles.footer}>Investment Mobile App</Text>
 
         <Text style={styles.version}>Version 1.0.0</Text>
       </ScrollView>

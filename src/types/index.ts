@@ -7,6 +7,14 @@ export type RootStackParamList = {
   Watchlist: undefined;
   Settings: undefined;
   News: undefined;
+  Notifications: undefined;
+  Appearance: undefined;
+  Language: undefined;
+  Security: undefined;
+  HelpCenter: undefined;
+  PrivacyPolicy: undefined;
+  TermsOfService: undefined;
+  About: undefined;
 };
 
 export type MainTabParamList = {

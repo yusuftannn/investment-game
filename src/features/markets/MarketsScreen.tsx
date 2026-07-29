@@ -154,73 +154,81 @@ export function MarketsScreen() {
         </ScrollView>
 
         <View style={styles.listCard}>
-          {filtered.map((m) => (
-            <TouchableOpacity
-              key={m.symbol}
-              style={styles.row}
-              activeOpacity={0.85}
-              onPress={() =>
-                navigation.navigate("MarketDetail", { symbol: m.symbol })
-              }
-            >
-              <View style={styles.left}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{m.symbol[0]}</Text>
-                </View>
-                <View>
-                  <Text style={styles.symbol}>{m.symbol}</Text>
-                  <Text style={styles.name}>{m.name}</Text>
-                </View>
-              </View>
+          {filtered.map((m) => {
+            const isFavorite = watchlistSymbols.includes(m.symbol);
 
-              <View style={styles.rightSection}>
-                <View style={styles.right}>
-                  <Text style={styles.price}>{formatCurrency(m.price)}</Text>
-                  <Text
-                    style={[
-                      styles.change,
-                      m.change >= 0 ? styles.positive : styles.negative,
-                    ]}
+            return (
+              <TouchableOpacity
+                key={m.symbol}
+                style={styles.row}
+                activeOpacity={0.85}
+                onPress={() =>
+                  navigation.navigate("MarketDetail", { symbol: m.symbol })
+                }
+              >
+                <View style={styles.left}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>{m.symbol[0]}</Text>
+                  </View>
+                  <View>
+                    <Text style={styles.symbol}>{m.symbol}</Text>
+                    <Text style={styles.name}>{m.name}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.rightSection}>
+                  <View style={styles.right}>
+                    <Text style={styles.price}>{formatCurrency(m.price)}</Text>
+                    <Text
+                      style={[
+                        styles.change,
+                        m.change >= 0 ? styles.positive : styles.negative,
+                      ]}
+                    >
+                      {m.change >= 0 ? "+" : ""}
+                      {m.change.toFixed(2)}%
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.watchlistButton}
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      handleToggleWatchlist(m.symbol);
+                    }}
                   >
-                    {m.change >= 0 ? "+" : ""}
-                    {m.change.toFixed(2)}%
-                  </Text>
+                    <Ionicons
+                      name={isFavorite ? "star" : "star-outline"}
+                      size={18}
+                      color={
+                        isFavorite
+                          ? theme.colors.primary
+                          : theme.colors.mutedText
+                      }
+                    />
+                  </TouchableOpacity>
                 </View>
-
-                <TouchableOpacity
-                  style={styles.watchlistButton}
-                  onPress={(event) => {
-                    event.stopPropagation();
-                    handleToggleWatchlist(m.symbol);
-                  }}
-                >
-                  <Ionicons
-                    name={
-                      watchlistSymbols.includes(m.symbol)
-                        ? "star"
-                        : "star-outline"
-                    }
-                    size={18}
-                    color={
-                      watchlistSymbols.includes(m.symbol)
-                        ? theme.colors.primary
-                        : theme.colors.mutedText
-                    }
-                  />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        <TouchableOpacity style={styles.newsHeader} activeOpacity={0.8} onPress={() => navigation.navigate("News")}>
+        <TouchableOpacity
+          style={styles.newsHeader}
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate("News")}
+        >
           <View>
             <Text style={styles.newsEyebrow}>MARKET INTELLIGENCE</Text>
             <Text style={styles.newsSectionTitle}>Latest news</Text>
           </View>
           <View style={styles.newsLinkRow}>
             <Text style={styles.newsLink}>See all</Text>
-            <Ionicons name="chevron-forward" size={16} color={theme.colors.primary} />
+            <Ionicons
+              name="chevron-forward"
+              size={16}
+              color={theme.colors.primary}
+            />
           </View>
         </TouchableOpacity>
 
@@ -230,11 +238,18 @@ export function MarketsScreen() {
               <View style={styles.newsAccent} />
               <View style={styles.newsCopy}>
                 <View style={styles.newsMeta}>
-                  <Text style={styles.newsCategory}>{newsCategoryLabels[item.category]}</Text>
+                  <Text style={styles.newsCategory}>
+                    {newsCategoryLabels[item.category]}
+                  </Text>
                   <Text style={styles.newsTime}>{item.publishedAt}</Text>
                 </View>
-                <Text style={styles.newsTitle} numberOfLines={2}>{item.title}</Text>
-                <Text style={styles.newsSource}>{item.source}{item.symbol ? ` · ${item.symbol}` : ""}</Text>
+                <Text style={styles.newsTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Text style={styles.newsSource}>
+                  {item.source}
+                  {item.symbol ? ` · ${item.symbol}` : ""}
+                </Text>
               </View>
             </View>
           ))}
@@ -327,18 +342,63 @@ const styles = StyleSheet.create({
   },
   positive: { color: theme.colors.success },
   negative: { color: theme.colors.danger },
-  newsHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: theme.spacing.xl, marginBottom: theme.spacing.md },
-  newsEyebrow: { color: theme.colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1 },
-  newsSectionTitle: { color: theme.colors.text, fontSize: theme.typography.subtitle, fontWeight: "800", marginTop: theme.spacing.xs },
+  newsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    marginTop: theme.spacing.xl,
+    marginBottom: theme.spacing.md,
+  },
+  newsEyebrow: {
+    color: theme.colors.primary,
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  newsSectionTitle: {
+    color: theme.colors.text,
+    fontSize: theme.typography.subtitle,
+    fontWeight: "800",
+    marginTop: theme.spacing.xs,
+  },
   newsLinkRow: { flexDirection: "row", alignItems: "center" },
   newsLink: { color: theme.colors.primary, fontWeight: "700", marginRight: 2 },
-  newsList: { backgroundColor: theme.colors.surface, borderRadius: theme.radius.lg, borderWidth: 1, borderColor: theme.colors.border, overflow: "hidden" },
-  newsRow: { flexDirection: "row", padding: theme.spacing.md, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
-  newsAccent: { width: 3, borderRadius: 2, backgroundColor: theme.colors.primary, marginRight: theme.spacing.md },
+  newsList: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    overflow: "hidden",
+  },
+  newsRow: {
+    flexDirection: "row",
+    padding: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  newsAccent: {
+    width: 3,
+    borderRadius: 2,
+    backgroundColor: theme.colors.primary,
+    marginRight: theme.spacing.md,
+  },
   newsCopy: { flex: 1 },
-  newsMeta: { flexDirection: "row", justifyContent: "space-between", marginBottom: theme.spacing.xs },
-  newsCategory: { color: theme.colors.primary, fontSize: 10, fontWeight: "800", textTransform: "uppercase" },
+  newsMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing.xs,
+  },
+  newsCategory: {
+    color: theme.colors.primary,
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
   newsTime: { color: theme.colors.mutedText, fontSize: 11 },
   newsTitle: { color: theme.colors.text, fontWeight: "700", lineHeight: 20 },
-  newsSource: { color: theme.colors.mutedText, fontSize: 11, marginTop: theme.spacing.xs },
+  newsSource: {
+    color: theme.colors.mutedText,
+    fontSize: 11,
+    marginTop: theme.spacing.xs,
+  },
 });

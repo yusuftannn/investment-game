@@ -19,6 +19,16 @@ import { WatchlistScreen } from "../features/watchlist/WatchlistScreen";
 import { NewsScreen } from "../features/news/NewsScreen";
 import { authService } from "../services/auth";
 import { theme } from "../theme";
+import {
+  AboutScreen,
+  AppearanceScreen,
+  HelpCenterScreen,
+  LanguageScreen,
+  NotificationsScreen,
+  PrivacyPolicyScreen,
+  SecurityScreen,
+  TermsOfServiceScreen,
+} from "../features/settings/SettingsDetailScreens";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -170,6 +180,14 @@ export function AppNavigator() {
             <Stack.Screen name="Watchlist" component={WatchlistScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="News" component={NewsScreen} />
+            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen name="Appearance" component={AppearanceScreen} />
+            <Stack.Screen name="Language" component={LanguageScreen} />
+            <Stack.Screen name="Security" component={SecurityScreen} />
+            <Stack.Screen name="HelpCenter" component={HelpCenterScreen} />
+            <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+            <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
+            <Stack.Screen name="About" component={AboutScreen} />
           </>
         ) : (
           <>
