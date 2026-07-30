@@ -25,6 +25,7 @@ import {
   HelpCenterScreen,
   LanguageScreen,
   NotificationsScreen,
+  AlertsScreen,
   PrivacyPolicyScreen,
   SecurityScreen,
   TermsOfServiceScreen,
@@ -180,13 +181,27 @@ export function AppNavigator() {
             <Stack.Screen name="Watchlist" component={WatchlistScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="News" component={NewsScreen} />
-            <Stack.Screen name="Notifications" component={NotificationsScreen} />
+            <Stack.Screen
+              name="Alerts"
+              component={AlertsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+            />
             <Stack.Screen name="Appearance" component={AppearanceScreen} />
             <Stack.Screen name="Language" component={LanguageScreen} />
             <Stack.Screen name="Security" component={SecurityScreen} />
             <Stack.Screen name="HelpCenter" component={HelpCenterScreen} />
-            <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
-            <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
+            <Stack.Screen
+              name="PrivacyPolicy"
+              component={PrivacyPolicyScreen}
+            />
+            <Stack.Screen
+              name="TermsOfService"
+              component={TermsOfServiceScreen}
+            />
             <Stack.Screen name="About" component={AboutScreen} />
           </>
         ) : (

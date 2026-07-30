@@ -89,8 +89,47 @@ export function HomeScreen() {
             <Text style={styles.eyebrow}>Good morning</Text>
             <Text style={styles.title}>Yusuf, your portfolio is thriving.</Text>
           </View>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>Y</Text>
+
+          <View style={styles.headerActions}>
+            {/* Alerts */}
+            <TouchableOpacity
+              style={styles.headerIcon}
+              onPress={() => navigation.navigate("Alerts")}
+            >
+              <Ionicons
+                name="alarm-outline"
+                size={22}
+                color={theme.colors.text}
+              />
+
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>2</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Notifications */}
+            <TouchableOpacity
+              style={styles.headerIcon}
+              onPress={() => navigation.navigate("Notifications")}
+            >
+              <Ionicons
+                name="notifications-outline"
+                size={22}
+                color={theme.colors.text}
+              />
+
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>5</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Profile */}
+            {/* <TouchableOpacity
+              style={styles.avatar}
+              onPress={() => navigation.navigate("Profile")}
+            >
+              <Text style={styles.avatarText}>Y</Text>
+            </TouchableOpacity> */}
           </View>
         </View>
 
@@ -260,14 +299,40 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: theme.colors.text,
   },
-  badge: {
-    backgroundColor: `${theme.colors.primary}22`,
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.xs,
-    borderRadius: 999,
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
   },
+
+  headerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+
+  badge: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: theme.colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+
   badgeText: {
-    color: theme.colors.primary,
+    color: "#fff",
+    fontSize: 9,
     fontWeight: "700",
   },
   heroStatsRow: {
@@ -397,5 +462,34 @@ const styles = StyleSheet.create({
   },
   negative: {
     color: theme.colors.danger,
+  },
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: theme.colors.surface,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+
+  notificationBadge: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: theme.colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+  },
+
+  notificationBadgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700",
   },
 });
