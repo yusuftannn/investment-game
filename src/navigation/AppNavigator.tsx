@@ -24,12 +24,14 @@ import {
   AppearanceScreen,
   HelpCenterScreen,
   LanguageScreen,
-  NotificationsScreen,
-  AlertsScreen,
+
   PrivacyPolicyScreen,
   SecurityScreen,
   TermsOfServiceScreen,
 } from "../features/settings/SettingsDetailScreens";
+import { NotificationsScreen } from "../features/settings/NotificationsScreen";
+import { AlertsScreen } from "../features/settings/AlertsScreen";
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
