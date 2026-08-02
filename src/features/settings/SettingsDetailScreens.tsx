@@ -87,7 +87,7 @@ export function ToggleRow({
   );
 }
 
-function ChoiceRow({
+export function ChoiceRow({
   title,
   selected,
   onPress,
@@ -118,49 +118,6 @@ function InfoBlock({ title, text }: { title: string; text: string }) {
       <Text style={styles.infoTitle}>{title}</Text>
       <Text style={styles.infoText}>{text}</Text>
     </View>
-  );
-}
-
-export function AppearanceScreen() {
-  const [mode, setMode] = useState("Dark");
-  return (
-    <SettingsPage title="Appearance" subtitle="Personalize how the app looks">
-      <Section title="Theme">
-        {["System default", "Light", "Dark"].map((item) => (
-          <ChoiceRow
-            key={item}
-            title={item}
-            selected={mode === item}
-            onPress={() => setMode(item)}
-          />
-        ))}
-      </Section>
-      <Text style={styles.note}>
-        Theme selection is saved for this session. The application currently
-        uses the dark color palette.
-      </Text>
-    </SettingsPage>
-  );
-}
-
-export function LanguageScreen() {
-  const [language, setLanguage] = useState("English");
-  return (
-    <SettingsPage title="Language" subtitle="Select your preferred language">
-      <Section>
-        {["English", "Türkçe"].map((item) => (
-          <ChoiceRow
-            key={item}
-            title={item}
-            selected={language === item}
-            onPress={() => setLanguage(item)}
-          />
-        ))}
-      </Section>
-      <Text style={styles.note}>
-        More languages will be added in future versions.
-      </Text>
-    </SettingsPage>
   );
 }
 

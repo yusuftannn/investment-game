@@ -21,16 +21,16 @@ import { authService } from "../services/auth";
 import { theme } from "../theme";
 import {
   AboutScreen,
-  AppearanceScreen,
   HelpCenterScreen,
-  LanguageScreen,
-
   PrivacyPolicyScreen,
   SecurityScreen,
   TermsOfServiceScreen,
 } from "../features/settings/SettingsDetailScreens";
+
 import { NotificationsScreen } from "../features/settings/NotificationsScreen";
 import { AlertsScreen } from "../features/settings/AlertsScreen";
+import { AppearanceScreen } from "../features/settings/AppearanceScreen";
+import { LanguageScreen } from "../features/settings/LanguageScreen";
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
