@@ -19,18 +19,13 @@ import { WatchlistScreen } from "../features/watchlist/WatchlistScreen";
 import { NewsScreen } from "../features/news/NewsScreen";
 import { authService } from "../services/auth";
 import { theme } from "../theme";
-import {
-  AboutScreen,
-  HelpCenterScreen,
-  PrivacyPolicyScreen,
-  SecurityScreen,
-  TermsOfServiceScreen,
-} from "../features/settings/SettingsDetailScreens";
 
 import { NotificationsScreen } from "../features/settings/NotificationsScreen";
 import { AlertsScreen } from "../features/settings/AlertsScreen";
 import { AppearanceScreen } from "../features/settings/AppearanceScreen";
 import { LanguageScreen } from "../features/settings/LanguageScreen";
+import { SecurityScreen } from "../features/settings/SecurityScreen";
+import { AboutScreen, HelpCenterScreen, PrivacyPolicyScreen, TermsOfServiceScreen } from "../features/settings/SupportScreen";
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
