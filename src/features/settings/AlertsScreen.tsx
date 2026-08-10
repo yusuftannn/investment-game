@@ -1,33 +1,79 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Section, SettingsPage, ToggleRow } from "./SettingsDetailScreens";
-import { TouchableOpacity,  StyleSheet,  Text, View } from "react-native";
+import {
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Alert,
+  Switch,
+} from "react-native";
 import { theme } from "../../theme";
+import { PriceAlert } from "../../types";
+import { getAlerts, saveAlerts } from "../../utils/alertsStorage";
+
+const defaultPreferences = {
+  priceAlerts: true,
+  volumeAlerts: false,
+  newsAlerts: true,
+};
 
 export function AlertsScreen() {
-  const [priceAlerts, setPriceAlerts] = useState(true);
-  const [volumeAlerts, setVolumeAlerts] = useState(false);
-  const [newsAlerts, setNewsAlerts] = useState(true);
+  const [priceAlerts, setPriceAlerts] = useState(defaultPreferences.priceAlerts);
+  const [volumeAlerts, setVolumeAlerts] = useState(defaultPreferences.volumeAlerts);
+  const [newsAlerts, setNewsAlerts] = useState(defaultPreferences.newsAlerts);
+  const [alerts, setAlerts] = useState<PriceAlert[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newSymbol, setNewSymbol] = useState("");
+  const [newCondition, setNewCondition] = useState("");
 
-  const alerts = [
-    {
-      id: 1,
-      symbol: "AAPL",
-      condition: "Above $240",
+  useEffect(() => {
+    const loadAlerts = async () => {
+      const stored = await getAlerts();
+      setAlerts(stored);
+    };
+
+    loadAlerts();
+  }, []);
+
+  const handleAddAlert = async () => {
+    const symbol = newSymbol.trim().toUpperCase();
+    const condition = newCondition.trim();
+
+    if (!symbol || !condition) {
+      Alert.alert("Eksik Alan", "Lütfen sembol ve koşul bilgilerini girin.");
+      return;
+    }
+
+    const nextAlert: PriceAlert = {
+      id: Date.now(),
+      symbol,
+      condition,
       active: true,
-    },
-    {
-      id: 2,
-      symbol: "BTC/USD",
-      condition: "Below $95,000",
-      active: true,
-    },
-    {
-      id: 3,
-      symbol: "TSLA",
-      condition: "Volume > 5M",
-      active: false,
-    },
-  ];
+    };
+
+    const nextAlerts = [nextAlert, ...alerts];
+    setAlerts(nextAlerts);
+    await saveAlerts(nextAlerts);
+    setNewSymbol("");
+    setNewCondition("");
+    setShowCreateForm(false);
+  };
+
+  const handleToggleAlert = async (id: number) => {
+    const nextAlerts = alerts.map((item) =>
+      item.id === id ? { ...item, active: !item.active } : item,
+    );
+    setAlerts(nextAlerts);
+    await saveAlerts(nextAlerts);
+  };
+
+  const handleRemoveAlert = async (id: number) => {
+    const nextAlerts = alerts.filter((item) => item.id !== id);
+    setAlerts(nextAlerts);
+    await saveAlerts(nextAlerts);
+  };
 
   return (
     <SettingsPage title="Price Alerts" subtitle="Manage your trading alerts">
@@ -55,66 +101,84 @@ export function AlertsScreen() {
       </Section>
 
       <Section title="Active Alerts">
+        {alerts.length === 0 ? (
+          <View style={styles.emptyBox}>
+            <Text style={styles.emptyText}>No alerts configured yet.</Text>
+            <Text style={styles.emptySubtext}>
+              Create a custom price alert and keep track of your positions.
+            </Text>
+          </View>
+        ) : null}
+
         {alerts.map((alert, index) => (
-          <TouchableOpacity
+          <View
             key={alert.id}
             style={[
               styles.choiceRow,
-              index === alerts.length - 1 && {
-                borderBottomWidth: 0,
-              },
+              index === alerts.length - 1 && { borderBottomWidth: 0 },
             ]}
-            activeOpacity={0.8}
           >
             <View style={{ flex: 1 }}>
               <Text style={styles.rowTitle}>{alert.symbol}</Text>
               <Text style={styles.rowSubtitle}>{alert.condition}</Text>
             </View>
 
-            <View
-              style={{
-                paddingHorizontal: 10,
-                paddingVertical: 4,
-                borderRadius: 20,
-                backgroundColor: alert.active
-                  ? `${theme.colors.success}20`
-                  : `${theme.colors.border}`,
-              }}
-            >
-              <Text
-                style={{
-                  color: alert.active
-                    ? theme.colors.success
-                    : theme.colors.mutedText,
-                  fontWeight: "600",
-                  fontSize: theme.typography.caption,
-                }}
+            <View style={styles.alertControls}>
+              <Switch
+                value={alert.active}
+                onValueChange={() => handleToggleAlert(alert.id)}
+                trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+                thumbColor={theme.colors.text}
+              />
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleRemoveAlert(alert.id)}
+                activeOpacity={0.7}
               >
-                {alert.active ? "Active" : "Paused"}
-              </Text>
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
+          </View>
         ))}
       </Section>
 
       <TouchableOpacity
-        style={{
-          marginTop: theme.spacing.lg,
-          backgroundColor: theme.colors.primary,
-          borderRadius: theme.radius.md,
-          paddingVertical: 16,
-          alignItems: "center",
-        }}
+        style={styles.createButton}
+        onPress={() => setShowCreateForm((value) => !value)}
       >
-        <Text
-          style={{
-            color: theme.colors.secondary,
-            fontWeight: "700",
-          }}
-        >
-          + Create New Alert
+        <Text style={styles.createButtonText}>
+          {showCreateForm ? "Cancel" : "+ Create New Alert"}
         </Text>
       </TouchableOpacity>
+
+      {showCreateForm ? (
+        <Section title="New Alert">
+          <View style={styles.formRow}>
+            <Text style={styles.formLabel}>Symbol</Text>
+            <TextInput
+              value={newSymbol}
+              onChangeText={setNewSymbol}
+              placeholder="AAPL or BTC/USD"
+              placeholderTextColor={theme.colors.mutedText}
+              style={styles.input}
+              autoCapitalize="characters"
+            />
+          </View>
+          <View style={styles.formRow}>
+            <Text style={styles.formLabel}>Condition</Text>
+            <TextInput
+              value={newCondition}
+              onChangeText={setNewCondition}
+              placeholder="Above $240"
+              placeholderTextColor={theme.colors.mutedText}
+              style={styles.input}
+            />
+          </View>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddAlert}>
+            <Text style={styles.addButtonText}>Save Alert</Text>
+          </TouchableOpacity>
+        </Section>
+      ) : null}
     </SettingsPage>
   );
 }
@@ -225,4 +289,71 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
   },
   value: { color: theme.colors.mutedText },
+  emptyBox: {
+    padding: theme.spacing.lg,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: theme.colors.text,
+    fontWeight: "700",
+  },
+  emptySubtext: {
+    color: theme.colors.mutedText,
+    textAlign: "center",
+    marginTop: theme.spacing.xs,
+  },
+  alertControls: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+  },
+  deleteButton: {
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  deleteText: {
+    color: theme.colors.danger,
+    fontWeight: "700",
+  },
+  createButton: {
+    marginTop: theme.spacing.lg,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  createButtonText: {
+    color: theme.colors.secondary,
+    fontWeight: "700",
+  },
+  formRow: {
+    marginBottom: theme.spacing.md,
+  },
+  formLabel: {
+    color: theme.colors.mutedText,
+    marginBottom: theme.spacing.xs,
+  },
+  input: {
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
+    color: theme.colors.text,
+  },
+  addButton: {
+    marginTop: theme.spacing.sm,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: theme.colors.secondary,
+    fontWeight: "700",
+  },
 });

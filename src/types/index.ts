@@ -45,4 +45,11 @@ export type Market = {
   market: MarketCategory;
 };
 
+export type PriceAlert = {
+  id: number;
+  symbol: string;
+  condition: string;
+  active: boolean;
+};
+
 export type MarketCategory = "us" | "bist" | "funds" | "crypto";
