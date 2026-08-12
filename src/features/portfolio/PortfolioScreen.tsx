@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { Svg, Polyline, Circle } from "react-native-svg";
 import { ScreenContainer } from "../../components/ui/ScreenContainer";
 import { portfolioService } from "../../services/portfolio";
 import { formatCurrency } from "../../utils/formatters";
@@ -19,6 +20,23 @@ type PortfolioSummary = {
   dailyChange: number;
   returnPercent: number;
 };
+
+const performanceTrend = [
+  { label: "M", value: 23400 },
+  { label: "T", value: 23850 },
+  { label: "W", value: 24020 },
+  { label: "T", value: 24780 },
+  { label: "F", value: 24610 },
+  { label: "S", value: 25140 },
+  { label: "S", value: 24850 },
+];
+
+const allocationData = [
+  { label: "Technology", value: 42, color: theme.colors.primary },
+  { label: "Healthcare", value: 23, color: "#60a5fa" },
+  { label: "Finance", value: 18, color: "#34d399" },
+  { label: "Energy", value: 17, color: "#f97316" },
+];
 
 export function PortfolioScreen() {
   const [portfolio, setPortfolio] = useState<PortfolioSummary | null>(null);
@@ -48,6 +66,20 @@ export function PortfolioScreen() {
     await loadPortfolio();
     setRefreshing(false);
   };
+
+  const chartMin = Math.min(...performanceTrend.map((point) => point.value));
+  const chartMax = Math.max(...performanceTrend.map((point) => point.value));
+
+  const chartPoints = performanceTrend
+    .map((point, index) => {
+      const x = (index / (performanceTrend.length - 1)) * 300;
+      const y =
+        100 -
+        ((point.value - chartMin) / (chartMax - chartMin || 1)) * 70;
+
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   if (isLoading || !portfolio) {
     return (
@@ -97,6 +129,82 @@ export function PortfolioScreen() {
               </Text>
             </View>
           </View>
+        </View>
+
+        <View style={styles.insightCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Performance trend</Text>
+            <Text style={styles.sectionHint}>7D</Text>
+          </View>
+
+          <Svg width="100%" height={130} viewBox="0 0 300 110">
+            <Polyline
+              points={chartPoints}
+              fill="none"
+              stroke={theme.colors.primary}
+              strokeWidth={3}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+            {performanceTrend.map((point, index) => {
+              const x = (index / (performanceTrend.length - 1)) * 300;
+              const y =
+                100 -
+                ((point.value - chartMin) / (chartMax - chartMin || 1)) * 70;
+
+              return (
+                <Circle
+                  key={`${point.label}-${index}`}
+                  cx={x}
+                  cy={y}
+                  r={index === performanceTrend.length - 1 ? 4 : 2.5}
+                  fill={
+                    index === performanceTrend.length - 1
+                      ? theme.colors.primary
+                      : "#f8d971"
+                  }
+                />
+              );
+            })}
+          </Svg>
+
+          <View style={styles.chartLabels}>
+            {performanceTrend.map((point) => (
+              <Text key={point.label} style={styles.chartLabel}>
+                {point.label}
+              </Text>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.insightCard}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Allocation</Text>
+            <Text style={styles.sectionHint}>Diversified</Text>
+          </View>
+
+          {allocationData.map((item) => (
+            <View key={item.label} style={styles.allocationRow}>
+              <View style={styles.allocationMeta}>
+                <View
+                  style={[styles.allocationDot, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.allocationLabel}>{item.label}</Text>
+              </View>
+              <Text style={styles.allocationValue}>{item.value}%</Text>
+              <View style={styles.allocationBar}>
+                <View
+                  style={[
+                    styles.allocationFill,
+                    {
+                      width: `${item.value}%`,
+                      backgroundColor: item.color,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+          ))}
         </View>
 
         <View style={styles.sectionHeader}>
@@ -217,8 +325,15 @@ const styles = StyleSheet.create({
   highlight: {
     color: theme.colors.success,
   },
-  sectionHeader: {
+  insightCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    padding: theme.spacing.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
     marginTop: theme.spacing.xl,
+  },
+  sectionHeader: {
     marginBottom: theme.spacing.md,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -233,11 +348,60 @@ const styles = StyleSheet.create({
     color: theme.colors.mutedText,
     fontSize: theme.typography.caption,
   },
+  chartLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: -4,
+  },
+  chartLabel: {
+    color: theme.colors.mutedText,
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  allocationRow: {
+    marginBottom: theme.spacing.md,
+    position: "relative",
+  },
+  allocationMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing.xs,
+  },
+  allocationDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: theme.spacing.sm,
+  },
+  allocationLabel: {
+    color: theme.colors.text,
+    fontWeight: "600",
+  },
+  allocationValue: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    color: theme.colors.mutedText,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
+  },
+  allocationBar: {
+    height: 8,
+    borderRadius: 999,
+    backgroundColor: "#1e293b",
+    overflow: "hidden",
+    marginTop: theme.spacing.xs,
+  },
+  allocationFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
   positionList: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
+    marginTop: theme.spacing.md,
   },
   positionRow: {
     flexDirection: "row",
