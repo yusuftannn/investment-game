@@ -15,6 +15,7 @@ import { theme } from "../../theme";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Line, Path } from "react-native-svg";
 import { marketDataService } from "../../services/market-data";
+import AlertModal from "../../components/ui/AlertModal";
 
 type MarketDetailRouteProp = RouteProp<RootStackParamList, "MarketDetail">;
 type NavProp = NativeStackNavigationProp<RootStackParamList, "MarketDetail">;
@@ -59,6 +60,7 @@ export function MarketDetailScreen() {
   const [asset, setAsset] = useState<Market | null>(null);
   const [range, setRange] = useState<Range>("1D");
   const [isFavorite, setIsFavorite] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
 
   useEffect(() => {
     marketDataService.getMarkets().then((markets) => {
@@ -120,16 +122,24 @@ export function MarketDetailScreen() {
             <Text style={styles.eyebrow}>{getMarketLabel(asset.market)}</Text>
             <Text style={styles.symbol}>{asset.symbol}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => setIsFavorite((value) => !value)}
-          >
-            <Ionicons
-              name={isFavorite ? "star" : "star-outline"}
-              size={22}
-              color={isFavorite ? theme.colors.primary : theme.colors.text}
-            />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => setIsFavorite((value) => !value)}
+            >
+              <Ionicons
+                name={isFavorite ? "star" : "star-outline"}
+                size={22}
+                color={isFavorite ? theme.colors.primary : theme.colors.text}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.iconButton, { width: 48, height: 48 }]}
+              onPress={() => setShowAlertModal(true)}
+            >
+              <Ionicons name="notifications-outline" size={20} color={theme.colors.text} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.identityRow}>
@@ -282,6 +292,11 @@ export function MarketDetailScreen() {
           />
         </TouchableOpacity>
       </View>
+      <AlertModal
+        visible={showAlertModal}
+        symbol={asset.symbol}
+        onClose={() => setShowAlertModal(false)}
+      />
     </View>
   );
 }
