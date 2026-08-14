@@ -64,8 +64,11 @@ export function ProfileScreen() {
       </View>
 
       <View style={styles.actions}>
-        <Pressable style={styles.primaryButton} onPress={() => {}}>
-          <Text style={styles.primaryButtonText}>Profili Düzenle</Text>
+        <Pressable
+          style={styles.primaryButton}
+          onPress={() => navigation.navigate("Challenges")}
+        >
+          <Text style={styles.primaryButtonText}>Görevleri Gör</Text>
         </Pressable>
         <Pressable
           style={styles.ghostButton}

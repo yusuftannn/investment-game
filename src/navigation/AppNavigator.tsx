@@ -26,7 +26,7 @@ import { AppearanceScreen } from "../features/settings/AppearanceScreen";
 import { LanguageScreen } from "../features/settings/LanguageScreen";
 import { SecurityScreen } from "../features/settings/SecurityScreen";
 import { AboutScreen, HelpCenterScreen, PrivacyPolicyScreen, TermsOfServiceScreen } from "../features/settings/SupportScreen";
-
+import { ChallengesScreen } from "../features/challenges/ChallengesScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -178,6 +178,7 @@ export function AppNavigator() {
             <Stack.Screen name="Watchlist" component={WatchlistScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="News" component={NewsScreen} />
+            <Stack.Screen name="Challenges" component={ChallengesScreen} />
             <Stack.Screen
               name="Alerts"
               component={AlertsScreen}

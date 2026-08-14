@@ -24,6 +24,7 @@ const quickActions = [
   },
   { label: "Trade", icon: "swap-horizontal-outline", accent: "#60a5fa" },
   { label: "Watchlist", icon: "star-outline", accent: "#34d399" },
+  { label: "Challenges", icon: "trophy-outline", accent: "#f97316" },
   { label: "News", icon: "newspaper-outline", accent: "#fb923c" },
 ];
 
@@ -66,6 +67,9 @@ export function HomeScreen() {
         break;
       case "Watchlist":
         navigation.navigate("Watchlist");
+        break;
+      case "Challenges":
+        navigation.navigate("Challenges");
         break;
       case "News":
         navigation.navigate("News");
