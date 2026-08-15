@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -56,6 +56,22 @@ export function HomeScreen() {
     await loadMarketHighlights();
     setRefreshing(false);
   };
+
+  const averageMove = useMemo(() => {
+    if (!marketHighlights.length) return 0;
+    return (
+      marketHighlights.reduce((sum, item) => sum + item.change, 0) /
+      marketHighlights.length
+    );
+  }, [marketHighlights]);
+
+  const sentimentLabel =
+    averageMove >= 0 ? "Risk appetite is positive" : "Risk appetite is cautious";
+  const topMover = marketHighlights[0];
+  const sentimentBarWidth = Math.min(
+    100,
+    Math.max(25, Math.abs(averageMove) * 8 + 30),
+  );
 
   const handleQuickAction = (label: string) => {
     switch (label) {
@@ -158,6 +174,45 @@ export function HomeScreen() {
               <Text style={styles.heroStatValue}>Balanced</Text>
             </View>
           </View>
+        </View>
+
+        <View style={styles.insightCard}>
+          <View style={styles.insightHeader}>
+            <Text style={styles.insightLabel}>Market sentiment</Text>
+            <Text
+              style={[
+                styles.insightValue,
+                {
+                  color:
+                    averageMove >= 0 ? theme.colors.success : theme.colors.warning,
+                },
+              ]}
+            >
+              {averageMove >= 0 ? "+" : ""}
+              {averageMove.toFixed(1)}%
+            </Text>
+          </View>
+
+          <Text style={styles.insightText}>{sentimentLabel}</Text>
+
+          <View style={styles.sentimentBar}>
+            <View
+              style={[
+                styles.sentimentFill,
+                {
+                  width: `${sentimentBarWidth}%`,
+                  backgroundColor:
+                    averageMove >= 0 ? theme.colors.success : theme.colors.warning,
+                },
+              ]}
+            />
+          </View>
+
+          <Text style={styles.insightMeta}>
+            {topMover
+              ? `Top mover: ${topMover.symbol} ${topMover.change >= 0 ? "+" : ""}${topMover.change.toFixed(1)}%`
+              : "Tracking market movers..."}
+          </Text>
         </View>
 
         <View style={styles.sectionHeader}>
@@ -359,6 +414,52 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: theme.colors.text,
+  },
+  insightCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.lg,
+    marginTop: theme.spacing.lg,
+  },
+  insightHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  insightLabel: {
+    color: theme.colors.mutedText,
+    fontSize: theme.typography.caption,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  insightValue: {
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  insightText: {
+    marginTop: theme.spacing.sm,
+    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  sentimentBar: {
+    height: 8,
+    backgroundColor: `${theme.colors.border}80`,
+    borderRadius: 999,
+    overflow: "hidden",
+    marginTop: theme.spacing.md,
+  },
+  sentimentFill: {
+    height: "100%",
+    borderRadius: 999,
+  },
+  insightMeta: {
+    marginTop: theme.spacing.sm,
+    color: theme.colors.mutedText,
+    fontSize: theme.typography.caption,
   },
   sectionHeader: {
     flexDirection: "row",

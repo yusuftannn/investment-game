@@ -16,6 +16,10 @@ import { Ionicons } from "@expo/vector-icons";
 import Svg, { Line, Path } from "react-native-svg";
 import { marketDataService } from "../../services/market-data";
 import AlertModal from "../../components/ui/AlertModal";
+import {
+  getWatchlistSymbols,
+  toggleWatchlistSymbol,
+} from "../../utils/watchlistStorage";
 
 type MarketDetailRouteProp = RouteProp<RootStackParamList, "MarketDetail">;
 type NavProp = NativeStackNavigationProp<RootStackParamList, "MarketDetail">;
@@ -68,6 +72,16 @@ export function MarketDetailScreen() {
     });
   }, [symbol]);
 
+  useEffect(() => {
+    if (!asset) {
+      return;
+    }
+
+    getWatchlistSymbols().then((symbols) => {
+      setIsFavorite(symbols.includes(asset.symbol));
+    });
+  }, [asset]);
+
   const history = useMemo(
     () => (asset ? generateMockHistory(asset.price, symbol.length) : []),
     [asset, symbol],
@@ -97,6 +111,13 @@ export function MarketDetailScreen() {
   const periodChange = ((latest - first) / first) * 100 || 0;
   const currency = asset ? getCurrency(asset.market) : "$";
 
+  const handleToggleFavorite = async () => {
+    if (!asset) return;
+
+    const added = await toggleWatchlistSymbol(asset.symbol);
+    setIsFavorite(added);
+  };
+
   if (!asset) {
     return (
       <View style={styles.loading}>
@@ -125,7 +146,7 @@ export function MarketDetailScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={() => setIsFavorite((value) => !value)}
+              onPress={handleToggleFavorite}
             >
               <Ionicons
                 name={isFavorite ? "star" : "star-outline"}
