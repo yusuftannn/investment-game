@@ -24,6 +24,7 @@ const quickActions = [
   },
   { label: "Trade", icon: "swap-horizontal-outline", accent: "#60a5fa" },
   { label: "Watchlist", icon: "star-outline", accent: "#34d399" },
+  { label: "Goals", icon: "flag-outline", accent: "#a78bfa" },
   { label: "Challenges", icon: "trophy-outline", accent: "#f97316" },
   { label: "News", icon: "newspaper-outline", accent: "#fb923c" },
 ];
@@ -66,7 +67,9 @@ export function HomeScreen() {
   }, [marketHighlights]);
 
   const sentimentLabel =
-    averageMove >= 0 ? "Risk appetite is positive" : "Risk appetite is cautious";
+    averageMove >= 0
+      ? "Risk appetite is positive"
+      : "Risk appetite is cautious";
   const topMover = marketHighlights[0];
   const sentimentBarWidth = Math.min(
     100,
@@ -83,6 +86,9 @@ export function HomeScreen() {
         break;
       case "Watchlist":
         navigation.navigate("Watchlist");
+        break;
+      case "Goals":
+        navigation.navigate("Goals");
         break;
       case "Challenges":
         navigation.navigate("Challenges");
@@ -184,7 +190,9 @@ export function HomeScreen() {
                 styles.insightValue,
                 {
                   color:
-                    averageMove >= 0 ? theme.colors.success : theme.colors.warning,
+                    averageMove >= 0
+                      ? theme.colors.success
+                      : theme.colors.warning,
                 },
               ]}
             >
@@ -202,7 +210,9 @@ export function HomeScreen() {
                 {
                   width: `${sentimentBarWidth}%`,
                   backgroundColor:
-                    averageMove >= 0 ? theme.colors.success : theme.colors.warning,
+                    averageMove >= 0
+                      ? theme.colors.success
+                      : theme.colors.warning,
                 },
               ]}
             />

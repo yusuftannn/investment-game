@@ -25,8 +25,14 @@ import { AlertsScreen } from "../features/settings/AlertsScreen";
 import { AppearanceScreen } from "../features/settings/AppearanceScreen";
 import { LanguageScreen } from "../features/settings/LanguageScreen";
 import { SecurityScreen } from "../features/settings/SecurityScreen";
-import { AboutScreen, HelpCenterScreen, PrivacyPolicyScreen, TermsOfServiceScreen } from "../features/settings/SupportScreen";
+import {
+  AboutScreen,
+  HelpCenterScreen,
+  PrivacyPolicyScreen,
+  TermsOfServiceScreen,
+} from "../features/settings/SupportScreen";
 import { ChallengesScreen } from "../features/challenges/ChallengesScreen";
+import { GoalsScreen } from "../features/goals/GoalsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -176,6 +182,7 @@ export function AppNavigator() {
             <Stack.Screen name="MarketDetail" component={MarketDetailScreen} />
             <Stack.Screen name="Deposit" component={DepositScreen} />
             <Stack.Screen name="Watchlist" component={WatchlistScreen} />
+            <Stack.Screen name="Goals" component={GoalsScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="News" component={NewsScreen} />
             <Stack.Screen name="Challenges" component={ChallengesScreen} />

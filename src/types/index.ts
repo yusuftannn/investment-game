@@ -5,6 +5,7 @@ export type RootStackParamList = {
   MarketDetail: { symbol: string };
   Deposit: undefined;
   Watchlist: undefined;
+  Goals: undefined;
   Settings: undefined;
   News: undefined;
   Notifications: undefined;
