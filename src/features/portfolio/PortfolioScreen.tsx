@@ -169,8 +169,8 @@ export function PortfolioScreen() {
           </Svg>
 
           <View style={styles.chartLabels}>
-            {performanceTrend.map((point) => (
-              <Text key={point.label} style={styles.chartLabel}>
+            {performanceTrend.map((point, index) => (
+              <Text key={`${point.label}-${index}`} style={styles.chartLabel}>
                 {point.label}
               </Text>
             ))}
